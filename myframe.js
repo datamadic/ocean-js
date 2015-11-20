@@ -12,7 +12,8 @@
 
 window.ocn = (function(){
 	var world = {},
-			events = {};
+			events = {},
+			taps = [];
 
 	function stateAdd (state){
 		var uuid = '_' + Math.random();
@@ -56,6 +57,8 @@ window.ocn = (function(){
 
 
 	function dispatch (evnt, ...args) {
+		taps.forEach(tap => {tap(evnt, args)});
+		
 		if(events[evnt])
 			events[evnt].forEach(action=>{
 				action.apply(null, args);
@@ -75,33 +78,50 @@ window.ocn = (function(){
 	}
 
 
+	// holding on the event args, should I implement that??
+  // it would be easy...  
 	function compsub(stmt, action){
-		var combo = stmt.split(' or ').map(act=>{return act.split(' and ')});
-		//console.log(combo);
+				var eventSet = stmt.split(' or ')
+						.map(act=>{
+							return act.split(' and ');
+						}),
+						combo = eventSet.slice(),
+						shouldFire;
+
+		taps.push((evnt)=>{
+
+			// remove the fired event from the proper cond set(s)
+			combo = combo.map(cond => {
+				return cond.filter(evntStr => {
+					return evntStr !== evnt;
+				});
+			});
+
+			// if there are any 0 length cond sets then a cond has been met
+			shouldFire = combo.map(condSet=>{
+				return condSet.length;
+			})
+			.filter(numEvents => {
+				return numEvents === 0;
+			}).length;
+			
+			if (shouldFire) {
+				action();
+				combo = eventSet.slice();
+			}
+
+		});
+
+		console.log('the combo',combo);
 	}
 
 
-	function loadComponenet (node) {
-		function subscribe(stmt, action){
-			(events[stmt] || (events[stmt] = [], events[stmt])).push(action);
-		};
 
-		function compsub(stmt, action){
-			var combo = stmt.split(' or ').map(act=>{return act.split(' and ')});
-			console.log(combo);
-		}
-		
-		return {
-			subscribe: subscribe,
-			compsub: compsub
-		};
-	}
 	
 	return {
 		dispatch: dispatch,
 		subscribe: subscribe,
 		changed: changed,
-		loadComponenet: loadComponenet,
 		stateAdd: stateAdd,
 		getItem: getItem,
 		update: update,

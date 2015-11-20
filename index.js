@@ -99,6 +99,6 @@ function paintUsers(usrs) {
 
 
 
-ocn.compsub('btn1 clicked and btn2 clicked', () => {
+ocn.compsub('btn1 clicked and btn2 clicked or btn3 clicked', () => {
     console.log('holy shit');
 })
