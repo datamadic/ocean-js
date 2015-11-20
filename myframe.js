@@ -3,7 +3,7 @@
 		All global state MUST BE serializible		
 		Any shared state is hashed global
 		Events first class, all listenable from everywhere
-		You load a base state into the app
+		--You load a base state into the app
 		What this really is is an interface to state itself...
 		You should know all your shared state from the start
 		Cant remove shared state, a null value carries meaning
@@ -35,7 +35,7 @@ window.ocn = (function(){
 	 */
 	function update(...args){
 		var uuid, swap,
-				existedAlready = args.length > 1 ;
+			existedAlready = args.length > 1 ;
 
 		if (existedAlready) {
 			uuid = args[0];
@@ -65,7 +65,14 @@ window.ocn = (function(){
 
 	function subscribe(stmt, action){
 		(events[stmt] || (events[stmt] = [], events[stmt])).push(action);
-	};
+	}
+
+
+	function changed(ref, action){
+		var stmt = ref + 'changed';
+
+		(events[stmt] || (events[stmt] = [], events[stmt])).push(action);
+	}
 
 
 	function compsub(stmt, action){
@@ -93,6 +100,7 @@ window.ocn = (function(){
 	return {
 		dispatch: dispatch,
 		subscribe: subscribe,
+		changed: changed,
 		loadComponenet: loadComponenet,
 		stateAdd: stateAdd,
 		getItem: getItem,
