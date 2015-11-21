@@ -68,13 +68,24 @@ window.ocn = (function(){
 
 	function subscribe(stmt, action){
 		(events[stmt] || (events[stmt] = [], events[stmt])).push(action);
+
+		return ()=>{_remove(events[stmt], action)};
 	}
 
+	function _remove (arr, item){
+		var idx = arr.indexOf(item),
+				exists = idx !== -1;
+
+		if (exists) {
+			arr.splice(idx, 1);
+		}
+			
+	}
 
 	function changed(ref, action){
 		var stmt = ref + 'changed';
-
-		(events[stmt] || (events[stmt] = [], events[stmt])).push(action);
+		
+		return subscribe(stmt, action);
 	}
 
 
@@ -99,11 +110,11 @@ window.ocn = (function(){
 
 			// if there are any 0 length cond sets then a cond has been met
 			shouldFire = combo.map(condSet=>{
-				return condSet.length;
-			})
-			.filter(numEvents => {
-				return numEvents === 0;
-			}).length;
+					return condSet.length;
+				})
+				.filter(numEvents => {
+					return numEvents === 0;
+				}).length;
 			
 			if (shouldFire) {
 				action();

@@ -1,6 +1,7 @@
 var label = document.getElementById('label'),
     btn1 = document.getElementById('btn1'),
     btn2 = document.getElementById('btn2'),
+		btn3 = document.getElementById('btn3'),
     ulist = document.getElementById('ulist');
 
 /*
@@ -34,6 +35,9 @@ btn2.addEventListener('click', () => {
     ocn.dispatch('btn2 clicked');
 });
 
+btn3.addEventListener('click', () => {
+    ocn.dispatch('btn3 clicked');
+});
 
 
 /*
@@ -41,7 +45,7 @@ btn2.addEventListener('click', () => {
 */
 
 // inc counter 
-ocn.subscribe('btn1 clicked', () => {
+var unsub1 = ocn.subscribe('btn1 clicked', () => {
     ocn.update(counter, (crt) => {
         return ++crt;
     });
@@ -91,14 +95,11 @@ function paintUsers(usrs) {
 
 
 
-
-
-
-
-
-
-
-
 ocn.compsub('btn1 clicked and btn2 clicked or btn3 clicked', () => {
     console.log('holy shit');
 })
+
+ocn.compsub('btn1 clicked and btn2 clicked or btn3 clicked and btn1 clicked', () => {
+    console.log('holy shit again');
+})
+
