@@ -1,0 +1,11 @@
+{
+  "name": "oceanjs",
+  "version": "0.1.0",
+  "description": "An interface to state",
+  "main": "src/ocean.js",
+  "scripts": {
+    "test": "babel src/ocean.js -o out/ocean.js; mocha"
+  },
+  "author": "xavier oneil",
+  "license": "MIT"
+}

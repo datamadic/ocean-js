@@ -94,15 +94,21 @@ function paintUsers(usrs) {
 }
 
 
-/*
+
 ocn.compsub('btn1 clicked and btn2 clicked or btn3 clicked', () => {
     console.log('holy shit');
 })
 
-ocn.compsub('btn1 clicked and btn2 clicked or btn3 clicked and btn1 clicked', () => {
-    console.log('holy shit again');
-})
-*/
+// ocn.compsub('btn1 clicked and btn2 clicked or btn3 clicked and btn1 clicked', () => {
+//     console.log('holy shit again');
+// })
+
+
+
+
+
+
+// bool state functions... 
 var coutnerGt5 = ()=>{
 
     var bt5 = ocn.getItem(counter) > 5;
@@ -115,9 +121,7 @@ var coutnerLt5 = ()=>{
 } 
 
 
-// ocn.compsub(['btn1 clicked and $ or btn2 clicked and $', coutnerGt5, coutnerLt5],()=>{
-// 	console.log('woooooow');
-// });
+
 
 
 ocn.compsub(['btn1 clicked and $ or btn2 clicked and $', coutnerGt5, coutnerLt5],()=>{
