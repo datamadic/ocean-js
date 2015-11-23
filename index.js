@@ -94,7 +94,7 @@ function paintUsers(usrs) {
 }
 
 
-
+/*
 ocn.compsub('btn1 clicked and btn2 clicked or btn3 clicked', () => {
     console.log('holy shit');
 })
@@ -102,4 +102,31 @@ ocn.compsub('btn1 clicked and btn2 clicked or btn3 clicked', () => {
 ocn.compsub('btn1 clicked and btn2 clicked or btn3 clicked and btn1 clicked', () => {
     console.log('holy shit again');
 })
+*/
+var coutnerGt5 = ()=>{
 
+    var bt5 = ocn.getItem(counter) > 5;
+
+	return bt5;
+} 
+
+var coutnerLt5 = ()=>{
+    return ocn.getItem(counter) < 5;
+} 
+
+
+// ocn.compsub(['btn1 clicked and $ or btn2 clicked and $', coutnerGt5, coutnerLt5],()=>{
+// 	console.log('woooooow');
+// });
+
+
+ocn.compsub(['btn1 clicked and $ or btn2 clicked and $', coutnerGt5, coutnerLt5],()=>{
+    console.log('woooooow');
+});
+
+
+/*
+ocn.compsub('btn1 clicked and $',()=>{
+	console.log('woooooow');
+});
+*/

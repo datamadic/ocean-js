@@ -10,135 +10,202 @@
 		You only put things in the shared state that you mean to observe 
 */
 
-window.ocn = (function(){
-	var world = {},
-			events = {},
-			taps = [];
+window.ocn = (function() {
+    var world = {},
+        events = {},
+        taps = [];
 
-	function stateAdd (state){
-		var uuid = '_' + Math.random();
+    function stateAdd(state) {
+        var uuid = '_' + Math.random();
 
-		world[uuid] = state;
+        world[uuid] = state;
 
-		return uuid;
-	}
-
-
-	function getItem (uuid) {
-		
-		// you get a copy and you'll like it 
-		return JSON.parse(JSON.stringify(world[uuid]));
-	}
+        return uuid;
+    }
 
 
-	/*
-		swap function must have a return value
-	 */
-	function update(...args){
-		var uuid, swap,
-			existedAlready = args.length > 1 ;
+    function getItem(uuid) {
 
-		if (existedAlready) {
-			uuid = args[0];
-			swap = args[1];
-		}
-		else {
-			uuid = '_' + Math.random();
-			swap = args[0];
-		}
-
-		world[uuid] = swap(world[uuid]);
-
-		// todo: should this be in a timeout 0?
-		dispatch(uuid+'changed', world[uuid]);
-
-		return existedAlready? getItem(uuid) : uuid;
-	}
+        // you get a copy and you'll like it 
+        return JSON.parse(JSON.stringify(world[uuid]));
+    }
 
 
-	function dispatch (evnt, ...args) {
-		taps.forEach(tap => {tap(evnt, args)});
-		
-		if(events[evnt])
-			events[evnt].forEach(action=>{
-				action.apply(null, args);
-			})
-	}
+    /*
+    	swap function must have a return value
+     */
+    function update(...args) {
+        var uuid, swap,
+            existedAlready = args.length > 1;
+
+        if (existedAlready) {
+            uuid = args[0];
+            swap = args[1];
+        } else {
+            uuid = '_' + Math.random();
+            swap = args[0];
+        }
+
+        world[uuid] = swap(world[uuid]);
+
+        // todo: should this be in a timeout 0?
+        dispatch(uuid + 'changed', world[uuid]);
+
+        return existedAlready ? getItem(uuid) : uuid;
+    }
 
 
-	function subscribe(stmt, action){
-		(events[stmt] || (events[stmt] = [], events[stmt])).push(action);
+    function dispatch(evnt, ...args) {
+        taps.forEach(tap => {
+            tap(evnt, args)
+        });
 
-		return ()=>{_remove(events[stmt], action)};
-	}
-
-	function _remove (arr, item){
-		var idx = arr.indexOf(item),
-				exists = idx !== -1;
-
-		if (exists) {
-			arr.splice(idx, 1);
-		}
-			
-	}
-
-	function changed(ref, action){
-		var stmt = ref + 'changed';
-		
-		return subscribe(stmt, action);
-	}
+        if (events[evnt])
+            events[evnt].forEach(action => {
+                action.apply(null, args);
+            })
+    }
 
 
-	// holding on the event args, should I implement that??
-  // it would be easy...  
-	function compsub(stmt, action){
-				var eventSet = stmt.split(' or ')
-						.map(act=>{
-							return act.split(' and ');
-						}),
-						combo = eventSet.slice(),
-						shouldFire;
+    function subscribe(stmt, action) {
+        (events[stmt] || (events[stmt] = [], events[stmt])).push(action);
 
-		taps.push((evnt)=>{
+        return () => {
+            _remove(events[stmt], action)
+        };
+    }
 
-			// remove the fired event from the proper cond set(s)
-			combo = combo.map(cond => {
-				return cond.filter(evntStr => {
-					return evntStr !== evnt;
-				});
-			});
+    function _remove(arr, item) {
+        var idx = arr.indexOf(item),
+            exists = idx !== -1;
 
-			// if there are any 0 length cond sets then a cond has been met
-			shouldFire = combo.map(condSet=>{
-					return condSet.length;
-				})
-				.filter(numEvents => {
-					return numEvents === 0;
-				}).length;
-			
-			if (shouldFire) {
-				action();
-				combo = eventSet.slice();
-			}
+        if (exists) {
+            arr.splice(idx, 1);
+        }
 
-		});
+    }
 
-		console.log('the combo',combo);
-	}
+    function changed(ref, action) {
+        var stmt = ref + 'changed';
+
+        return subscribe(stmt, action);
+    }
+
+
+    // holding on the event args, should I implement that??
+    // it would be easy...  
+    function compsub(stmt, action) {
+        var eventSet = _composeEvents(stmt),
+            combo = eventSet.slice(),
+            shouldFire, tmparr;
 
 
 
-	
-	return {
-		dispatch: dispatch,
-		subscribe: subscribe,
-		changed: changed,
-		stateAdd: stateAdd,
-		getItem: getItem,
-		update: update,
-		compsub: compsub
-	};
+        taps.push((evnt) => {
+
+            // remove the fired event from the proper cond set(s)
+            combo = combo.map(cond => {
+                return cond.filter(evntStr => {
+                	var isFunction = typeof evntStr === 'function';
+
+                	if (isFunction) {
+                		return true;
+                	}
+
+                    return evntStr !== evnt;
+                });
+            });
+
+
+
+            // if there are any 0 length cond sets then a cond has been met
+            shouldFire = combo.map(cond => {
+                return cond.filter(evntStr => {
+                	var isFunction = typeof evntStr === 'function';
+
+                	if (isFunction) {
+
+                		var retval = !evntStr();
+
+
+
+                		return retval;
+                	}
+
+                	return true;
+
+                    //return evntStr !== evnt;
+                });
+            })
+
+            
+           	
+
+            shouldFire= shouldFire.map(condSet => {
+                    return condSet.length;
+                })
+                .filter(numEvents => {
+                    return numEvents === 0;
+                }).length;
+
+            if (shouldFire) {
+                action();
+                combo = eventSet.slice();
+            }
+
+        });
+
+    }
+
+    function _composeEvents(stmt) {
+        var strPassed = typeof stmt === 'string',
+            initProc, fnList;
+
+        if (strPassed) {
+            return stmt.split(' or ')
+                .map(act => {
+                    return act.split(' and ');
+                });
+
+        } else {
+            initProc = stmt[0].split(' or ')
+                .map(act => {
+                    return act.split(' and ');
+                });
+
+            fnList = stmt.slice(1);
+
+            return _mapmap(initProc, (evnt)=>{
+            	var shouldShift = evnt === '$';
+
+            	return shouldShift? fnList.shift() : evnt
+            });
+        }
+    } // end _comp...
+
+
+    function _forforEach(ctx, action) {
+        ctx.forEach((inner) => {
+            inner.forEach(action);
+        });
+    }
+
+
+    function _mapmap(arr, action) {
+    	return arr.map((inner)=>{
+    		return inner.map(action);
+    	});
+    }
+
+
+    return {
+        dispatch: dispatch,
+        subscribe: subscribe,
+        changed: changed,
+        stateAdd: stateAdd,
+        getItem: getItem,
+        update: update,
+        compsub: compsub
+    };
 
 }());
-
-
