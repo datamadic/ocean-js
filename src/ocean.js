@@ -183,9 +183,9 @@ exportObj.ocn = (function() {
             fnList = stmt.slice(1);
 
             return _mapmap(initProc, (evnt)=>{
-            	var shouldShift = evnt === '$';
+            	var replace = evnt === '$';
 
-            	return shouldShift? fnList.shift() : evnt
+            	return replace? fnList.shift() : evnt
             });
         }
     } // end _comp...

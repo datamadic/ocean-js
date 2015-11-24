@@ -36,7 +36,7 @@ describe('Ocean state interface', function() {
         var ocn = require('../out/ocean.js').ocn;
 
         describe('subscribe', function() {
-            
+
 
             it('should receive the event that was dispatched', function(done) {
                 var unsub = ocn.subscribe('event 1', function(res) {
@@ -91,17 +91,17 @@ describe('Ocean state interface', function() {
                     ++sent;
                 });
 
-                setTimeout(function(){
+                setTimeout(function() {
                     assert.equal(numGot, 1);
                     assert.equal(sent, 2);
                     done();
-                },450);
+                }, 450);
 
             });
         });
 
-        describe('compsub', function() {
-            
+        describe('compsub w/o state functions', function() {
+
 
             it('should be able to subscribe to multiple events in a compound way using \'and\'', function(done) {
                 var numSent = 0;
@@ -113,13 +113,13 @@ describe('Ocean state interface', function() {
                         done();
                     }
                     //done();
-                    
+
                 });
 
                 setTimeout(function() {
                     ++numSent;
                     ocn.dispatch('event 4');
-                    
+
                 }, 10);
 
                 setTimeout(function() {
@@ -127,7 +127,7 @@ describe('Ocean state interface', function() {
                     // to figure out if thats what I want... 
                     ++numSent;
                     ocn.dispatch('event 5');
-                    
+
                 }, 200);
 
             });
@@ -138,34 +138,76 @@ describe('Ocean state interface', function() {
                 this.timeout(500);
 
                 ocn.compsub('event 6 and event 7 or event 8', function() {
-                    
+
                     if (numSent == 1) {
                         done();
                     }
                     //done();
-                    
+
                 });
 
                 setTimeout(function() {
                     ++numSent;
                     ocn.dispatch('event 8');
-                    
+
                 }, 10);
 
                 setTimeout(function() {
                     ++numSent;
                     ocn.dispatch('event 7');
-                    
+
                 }, 100);
 
                 setTimeout(function() {
                     ++numSent;
                     ocn.dispatch('event 6');
-                    
+
                 }, 200);
 
             });
         }); //end describe compsub
+
+
+        describe('compsub with state functions', function() {
+            it('should take a state function using $ syntax (pos)', function(done) {
+                var isTrue = function() {
+                    return true;
+                };
+
+                this.timeout(200);
+
+                ocn.compsub(['event 9 and $', isTrue], function() {
+                    done();
+                });
+
+                setTimeout(function() {
+                    ocn.dispatch('event 9');
+                }, 10);
+            });
+
+            it('should take a state function using $ syntax (neg)', function(done) {
+                var isFalse = function() {
+                    return false;
+                };
+
+                this.timeout(300);
+
+
+                ocn.compsub(['event 10 and $', isFalse], function() {
+                    throw new Error('False state function triggered callback');
+                });
+
+                setTimeout(function() {
+                    ocn.dispatch('event 10');
+                }, 10);
+
+                setTimeout(function(){
+                    done();
+                },250);
+            });
+        });
+
+
 
     }); // end ocn: dispatch / subscribe
 }); // end Ocean state interface
