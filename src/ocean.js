@@ -113,45 +113,27 @@ exportObj.ocn = (function() {
 
         taps.push((evnt) => {
 
-            // remove the fired event from the proper cond set(s)
-            combo = combo.map(cond => {
-                return cond.filter(evntStr => {
-                	var isFunction = typeof evntStr === 'function';
+            //prev[0] is the running list, prev [1] will be set as combo
+            var procList = combo.reduce((prev, curr, idx, lst)=>{
+                var idxCombo, idxFiltered;
 
-                	if (isFunction) {
-                		return true;
-                	}
+                idxCombo = prev[0].push(curr.filter((condition)=>{
+                    return condition !== evnt; 
+                })) - 1;
 
-                    return evntStr !== evnt;
-                });
-            });
+                idxFiltered = prev[1].push(prev[0][idxCombo].filter(cond=>{
+                    return typeof cond === 'function' ? !cond() : true;
+                })) -1;
 
+                prev[2].push(prev[1][idxFiltered].length);
 
+                return prev;
+            },[[], [], []]);
 
-            // if there are any 0 length cond sets then a cond has been met
-            shouldFire = combo.map(cond => {
-                return cond.filter(evntStr => {
-                	var isFunction = typeof evntStr === 'function';
-
-                	if (isFunction) {
-
-                		var retval = !evntStr();
-                		return retval;
-                	}
-
-                	return true;
-
-                    //return evntStr !== evnt;
-                });
-            })
-
-            
+            combo = procList[0];
            	
-
-            shouldFire= shouldFire.map(condSet => {
-                    return condSet.length;
-                })
-                .filter(numEvents => {
+            // if there are any 0 length cond sets then a cond has been met
+            shouldFire = procList[2].filter(numEvents => {
                     return numEvents === 0;
                 }).length;
 
@@ -162,26 +144,28 @@ exportObj.ocn = (function() {
 
         });
 
+        // todo: return _remove(taps, THE LISTENER)
+
     }
 
     function _composeEvents(stmt) {
         var strPassed = typeof stmt === 'string',
+            evntCombo = strPassed? stmt : stmt[0], 
             initProc, fnList;
 
-        if (strPassed) {
-            return stmt.split(' or ')
+        initProc = evntCombo.split(' or ')
                 .map(act => {
                     return act.split(' and ');
                 });
+
+        if (strPassed) {
+            return initProc
 
         } else {
-            initProc = stmt[0].split(' or ')
-                .map(act => {
-                    return act.split(' and ');
-                });
-
             fnList = stmt.slice(1);
 
+            // return an array of arrays where the $ have been replaced in 
+            // order with the functions passed in as state functions 
             return _mapmap(initProc, (evnt)=>{
             	var replace = evnt === '$';
 
