@@ -1,17 +1,17 @@
 var assert = require('assert'),
-    ocn = require('../out/ocean.js').ocn;
+    ocean = require('../out/ocean.js').ocean;
 
 describe('Ocean state interface', function() {
 
-    describe('ocn: setting / getting state', function() {
+    describe('ocean: setting / getting state', function() {
         describe('update', function() {
-            var uuid = ocn.update(function() {
+            var uuid = ocean.update(function() {
                     return 5
                 }),
-                update = ocn.update(uuid, function(item) {
+                update = ocean.update(uuid, function(item) {
                     return ++item;
                 }),
-                got = ocn.getItem(uuid);
+                got = ocean.getItem(uuid);
 
             // this is async??
             it('should return a uuid when initially setting state', function(done) {
@@ -28,24 +28,26 @@ describe('Ocean state interface', function() {
             it('should return the value via getItem', function() {
                 assert.equal(got, 6);
             });
+
+            //todo: test types in and out...
         });
     });
 
-    describe('ocn: dispatch / subscribe', function() {
+    describe('ocean: dispatch / subscribe', function() {
 
-        var ocn = require('../out/ocean.js').ocn;
+        var ocean = require('../out/ocean.js').ocean;
 
         describe('subscribe', function() {
 
 
             it('should receive the event that was dispatched', function(done) {
-                var unsub = ocn.subscribe('event 1', function(res) {
+                var unsub = ocean.subscribe('event 1', function(res) {
                     done();
                 });
 
                 // todo: should this have to be timed out???
                 setTimeout(function() {
-                    ocn.dispatch('event 1');
+                    ocean.dispatch('event 1');
                 }, 1);
 
             });
@@ -55,7 +57,7 @@ describe('Ocean state interface', function() {
         describe('subscribe', function() {
 
             it('should receive multiple dispatched items if sent', function(done) {
-                var unsub = ocn.subscribe('event 2', function(first, second, third) {
+                var unsub = ocean.subscribe('event 2', function(first, second, third) {
                     assert.equal(first, 1);
                     assert.equal(second, 2);
                     assert.equal(third, 3);
@@ -64,7 +66,7 @@ describe('Ocean state interface', function() {
 
                 // todo: should this have to be timed out???
                 setTimeout(function() {
-                    ocn.dispatch('event 2', 1, 2, 3);
+                    ocean.dispatch('event 2', 1, 2, 3);
                 });
 
             });
@@ -77,17 +79,17 @@ describe('Ocean state interface', function() {
             this.timeout(500);
 
             it('should stop receiving messages after unsubscribing', function(done) {
-                var unsub = ocn.subscribe('event 3', function() {
+                var unsub = ocean.subscribe('event 3', function() {
                     unsub();
                     ++numGot;
                 });
 
                 setTimeout(function() {
-                    ocn.dispatch('event 3');
+                    ocean.dispatch('event 3');
                     ++sent;
                 });
                 setTimeout(function() {
-                    ocn.dispatch('event 3');
+                    ocean.dispatch('event 3');
                     ++sent;
                 });
 
@@ -108,17 +110,16 @@ describe('Ocean state interface', function() {
 
                 this.timeout(500);
 
-                ocn.compsub('event 4 and event 5', function() {
+                ocean.compsub('event 4 and event 5', function() {
                     if (numSent == 2) {
                         done();
                     }
-                    //done();
 
                 });
 
                 setTimeout(function() {
                     ++numSent;
-                    ocn.dispatch('event 4');
+                    ocean.dispatch('event 4');
 
                 }, 10);
 
@@ -126,7 +127,7 @@ describe('Ocean state interface', function() {
                     // todo: the numSent after the dispatch will break... need 
                     // to figure out if thats what I want... 
                     ++numSent;
-                    ocn.dispatch('event 5');
+                    ocean.dispatch('event 5');
 
                 }, 200);
 
@@ -137,7 +138,7 @@ describe('Ocean state interface', function() {
 
                 this.timeout(500);
 
-                ocn.compsub('event 6 and event 7 or event 8', function() {
+                ocean.compsub('event 6 and event 7 or event 8', function() {
 
                     if (numSent == 1) {
                         done();
@@ -148,19 +149,19 @@ describe('Ocean state interface', function() {
 
                 setTimeout(function() {
                     ++numSent;
-                    ocn.dispatch('event 8');
+                    ocean.dispatch('event 8');
 
                 }, 10);
 
                 setTimeout(function() {
                     ++numSent;
-                    ocn.dispatch('event 7');
+                    ocean.dispatch('event 7');
 
                 }, 100);
 
                 setTimeout(function() {
                     ++numSent;
-                    ocn.dispatch('event 6');
+                    ocean.dispatch('event 6');
 
                 }, 200);
 
@@ -176,12 +177,12 @@ describe('Ocean state interface', function() {
 
                 this.timeout(200);
 
-                ocn.compsub(['event 9 and $', isTrue], function() {
+                ocean.compsub(['event 9 and $', isTrue], function() {
                     done();
                 });
 
                 setTimeout(function() {
-                    ocn.dispatch('event 9');
+                    ocean.dispatch('event 9');
                 }, 10);
             });
 
@@ -193,12 +194,12 @@ describe('Ocean state interface', function() {
                 this.timeout(300);
 
 
-                ocn.compsub(['event 10 and $', isFalse], function() {
+                ocean.compsub(['event 10 and $', isFalse], function() {
                     throw new Error('False state function triggered callback');
                 });
 
                 setTimeout(function() {
-                    ocn.dispatch('event 10');
+                    ocean.dispatch('event 10');
                 }, 10);
 
                 setTimeout(function(){
@@ -209,5 +210,5 @@ describe('Ocean state interface', function() {
 
 
 
-    }); // end ocn: dispatch / subscribe
+    }); // end ocean: dispatch / subscribe
 }); // end Ocean state interface

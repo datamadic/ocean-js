@@ -1,18 +1,16 @@
 'use strict';
 
 /*
-	A few ideas:
-		All global state MUST BE serializible		
-		Any shared state is hashed global
-		Events first class, all listenable from everywhere
-		--You load a base state into the app
-		What this really is is an interface to state itself...
-		You should know all your shared state from the start
-		Cant remove shared state, a null value carries meaning
-		You only put things in the shared state that you mean to observe 
+    A few ideas:
+        All global state MUST BE serializible       
+        Any shared state is hashed global
+        Events first class, all listenable from everywhere
+        What this really is is an interface to state itself...
+        You should know all your shared state from the start
+        Cant remove shared state, a null value carries meaning
+        You only put things in the shared state that you mean to observe 
 */
-//var brwsr = window !== undefined;
-//var exportObj = brwsr ? window : module? module.exports : {};
+
 var exportObj;
 
 if (typeof window === 'undefined') {
@@ -21,27 +19,19 @@ if (typeof window === 'undefined') {
     exportObj = window;
 }
 
-exportObj.ocn = (function () {
+exportObj.ocean = (function () {
     var world = {},
         events = {},
         taps = [];
 
-    function stateAdd(state) {
-        var uuid = '_' + Math.random();
-
-        world[uuid] = state;
-
-        return uuid;
-    }
-
     function getItem(uuid) {
-
+        var val = world[uuid];
         // you get a copy and you'll like it
-        return JSON.parse(JSON.stringify(world[uuid]));
+        return val ? JSON.parse(val) : undefined;
     }
 
     /*
-    	swap function must have a return value
+        swap function must have a return value
      */
     function update() {
         for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
@@ -56,14 +46,16 @@ exportObj.ocn = (function () {
             uuid = args[0];
             swap = args[1];
         } else {
+
+            // this most likely needs to be stronger
             uuid = '_' + Math.random();
             swap = args[0];
         }
 
-        world[uuid] = swap(world[uuid]);
+        world[uuid] = JSON.stringify(swap(getItem(uuid)));
 
         // todo: should this be in a timeout 0?
-        dispatch(uuid + 'changed', world[uuid]);
+        dispatch(uuid + 'changed', getItem(uuid));
 
         return existedAlready ? getItem(uuid) : uuid;
     }
@@ -111,14 +103,11 @@ exportObj.ocn = (function () {
         var eventSet = _composeEvents(stmt),
             combo = eventSet.slice(),
             shouldFire,
-            tmparr;
+            tapFn;
 
-        taps.push(function (evnt) {
-
+        tapFn = function (evnt) {
             //prev[0] is the running list, prev [1] will be set as combo
             var procList = combo.reduce(function (prev, curr, idx, lst) {
-                //console.log(arguments);
-
                 var idxCombo, idxFiltered;
 
                 idxCombo = prev[0].push(curr.filter(function (condition) {
@@ -145,9 +134,11 @@ exportObj.ocn = (function () {
                 action();
                 combo = eventSet.slice();
             }
-        });
+        };
 
-        // todo: return _remove(taps, THE LISTENER)
+        taps.push(tapFn);
+
+        //return _remove(taps, tapFn);
     }
 
     function _composeEvents(stmt) {
@@ -191,7 +182,6 @@ exportObj.ocn = (function () {
         dispatch: dispatch,
         subscribe: subscribe,
         changed: changed,
-        stateAdd: stateAdd,
         getItem: getItem,
         update: update,
         compsub: compsub
