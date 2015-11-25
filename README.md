@@ -2,9 +2,12 @@
 
 An experimental library (framework?) that intends to be an evented interface to shared state. Most (all?) of these ideas have been stolen from the smart people that work on following (and from the people that they have stolen from etc.) [reframe](https://github.com/Day8/re-frame), [reagent](https://github.com/reagent-project/reagent), [clojure atoms](http://clojure.org/atoms), [RxJs](https://github.com/Reactive-Extensions/RxJS), [React](https://github.com/facebook/react). 
 
+#####try it out (wip)
+````html
+<script src="http://datamadic.github.io/ocean-js/out/ocean.js"></script>
+````
 
-
-##Basic Usage ([from example]())
+##Basic Usage ([from example](http://datamadic.github.io/ocean-js/examples/))
 ````js
 var label = document.getElementById('label'),
     btn1 = document.getElementById('btn1');
@@ -30,7 +33,7 @@ ocean.changed(counter, () => {
 
 ````
 
-##Compound Subscriptions ([from example]())
+##Compound Subscriptions ([from example](http://datamadic.github.io/ocean-js/examples/))
 ````js
 var btn1 = document.getElementById('btn1'),
 	btn2 = document.getElementById('btn2');
@@ -54,7 +57,7 @@ ocean.compsub('btn1_clicked and btn2_clicked', () => {
 	
 ````
 
-##Compound Subscriptions With State Functions ([from example]())
+##Compound Subscriptions With State Functions ([from example](http://datamadic.github.io/ocean-js/examples/))
 ````js
 var btn1 = document.getElementById('btn1');
 
@@ -100,6 +103,8 @@ The thought is this: if you have a conditional acting as the gatekeeper inside o
 
 ###API
 coming soon to markdown near you!
+
+
 
 
 [//]: # (The basic premise, so far... :) )
