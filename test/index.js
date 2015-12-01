@@ -1,5 +1,5 @@
 var assert = require('assert'),
-    ocean = require('../out/ocean.js').ocean;
+    ocean = require('../out/ocean.js').ocean();
 
 describe('Ocean state interface', function() {
 
@@ -35,7 +35,7 @@ describe('Ocean state interface', function() {
 
     describe('ocean: dispatch / subscribe', function() {
 
-        var ocean = require('../out/ocean.js').ocean;
+        var ocean = require('../out/ocean.js').ocean();
 
         describe('subscribe', function() {
 
