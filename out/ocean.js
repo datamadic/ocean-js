@@ -19,7 +19,7 @@ if (typeof window === 'undefined') {
     exportObj = window;
 }
 
-exportObj.ocean = (function () {
+exportObj.ocean = function () {
     var world = {},
         events = {},
         taps = [];
@@ -82,15 +82,6 @@ exportObj.ocean = (function () {
         };
     }
 
-    function _remove(arr, item) {
-        var idx = arr.indexOf(item),
-            exists = idx !== -1;
-
-        if (exists) {
-            arr.splice(idx, 1);
-        }
-    }
-
     function changed(ref, action) {
         var stmt = ref + 'changed';
 
@@ -138,7 +129,17 @@ exportObj.ocean = (function () {
 
         taps.push(tapFn);
 
-        //return _remove(taps, tapFn);
+        // todo: fix unsubscribe (is it a broken test?)
+        //_remove(taps, tapFn);
+    }
+
+    function _remove(arr, item) {
+        var idx = arr.indexOf(item),
+            exists = idx !== -1;
+
+        if (exists) {
+            arr.splice(idx, 1);
+        }
     }
 
     function _composeEvents(stmt) {
@@ -166,12 +167,6 @@ exportObj.ocean = (function () {
         }
     } // end _comp...
 
-    function _forforEach(ctx, action) {
-        ctx.forEach(function (inner) {
-            inner.forEach(action);
-        });
-    }
-
     function _mapmap(arr, action) {
         return arr.map(function (inner) {
             return inner.map(action);
@@ -186,4 +181,4 @@ exportObj.ocean = (function () {
         update: update,
         compsub: compsub
     };
-})();
+};
