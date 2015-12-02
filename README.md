@@ -7,17 +7,18 @@ An experimental library (framework?) that intends to be an evented interface to 
     * [Basic](#1)
     * [Compound Subscriptions](#2)
     * [State Functions](#3)
-* [Reasoning](#4)
 * [API Documentation](#5)
-    * [dispatch](#6)
-    * [subscribe](#7)
-    * [changed](#8)
+    * [changed](#6)
+    * [compsub](#7)
+    * [dispatch](#8)
     * [getItem](#9)
-    * [update](#10)
-    * [compsub](#11)
+    * [subscribe](#10)
+    * [update](#11)
+* [Reasoning](#4)
+    
+---
 
-
-#####try it out
+####Try it out
 ````html
 <script src="http://datamadic.github.io/ocean-js/out/ocean.js"></script>
 ````
@@ -114,27 +115,43 @@ ocn.compsub(['btn1_clicked and $', coutnerGt5],()=>{
 ---
 
 
-#### <a name="4"></a>Why don't you just tell me which movie you want to see?
+
+## <a name="5"></a>API
+To create an ocean
+
+````js
+var myOcean = ocean();
+````
+
+#### <a name="6"></a>changed
+`changed(id, callback)` (string, function) -> function()
+
+Callback called when the the value of the data represented by the `id` 
+changes. Returns a function that will unsubscribe your callback on that id 
+when called. 
+
+#### <a name="7"></a>compsub
+#### <a name="8"></a>dispatch
+#### <a name="9"></a>getItem
+#### <a name="10"></a>subscribe
+#### <a name="11"></a>update
+
+
+---
+
+## <a name="4"></a>Why don't you just tell me which movie you want to see?
 
 We've all seen code like this:
 ````js
 emitter.on('the-event-i-care-about', function(res){
-	if(some_state) {
-		// do whatever... 
-	}
+    if(some_state) {
+        // do whatever... 
+    }
 });
 ````
 
 The thought is this: if you have a conditional acting as the gatekeeper inside of an asynchronous event, the conditional does not belong to you, it should be part of the subscription itself. Say, for example, you want to react to a button click only if the user is logged in. The user being logged in is part of the state that your component (and most likely others) care about. You care so much that if the user is not logged in, you are not going to take your action, so why even fire the callback?
 
-### <a name="5"></a>API
-
-##### <a name="6"></a>dispatch
-##### <a name="7"></a>subscribe
-##### <a name="8"></a>changed
-##### <a name="9"></a>getItem
-##### <a name="10"></a>update
-##### <a name="11"></a>compsub
 
 
 
