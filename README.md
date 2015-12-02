@@ -2,6 +2,7 @@
 
 An experimental library (framework?) that intends to be an evented interface to shared state. Most (all?) of these ideas have been stolen from the smart people that work on following (and from the people that they have stolen from etc.) [reframe](https://github.com/Day8/re-frame), [reagent](https://github.com/reagent-project/reagent), [clojure atoms](http://clojure.org/atoms), [RxJs](https://github.com/Reactive-Extensions/RxJS), [React](https://github.com/facebook/react). 
 
+---
 
 * [Example Usage](#1) 
     * [Basic](#1)
@@ -37,7 +38,7 @@ var ocn = ocean();
 var counter = ocn.update(() => { return 0; });
 
 /* Wire up events */
-btn1.addEventListener('click', function() {
+btn1.addEventListener('click', () => {
     ocn.dispatch('btn1_clicked');
 });
 
@@ -66,7 +67,7 @@ var ocn = ocean();
 var counter = ocn.update(() => { return 0; });
 
 /* Wire up events */
-btn1.addEventListener('click', function() {
+btn1.addEventListener('click', () => {
     ocn.dispatch('btn1_clicked');
 });
 
@@ -92,7 +93,7 @@ var ocn = ocean();
 var counter = ocn.update(() => { return 0; });
 
 /* Wire up events */
-btn1.addEventListener('click', function() {
+btn1.addEventListener('click', () => {
     ocn.dispatch('btn1_clicked');
 });
 
@@ -117,6 +118,8 @@ ocn.compsub(['btn1_clicked and $', coutnerGt5],()=>{
 
 
 ## <a name="5"></a>API
+A brief overview here...
+
 To create an ocean
 
 ````js
@@ -126,15 +129,89 @@ var myOcean = ocean();
 #### <a name="6"></a>changed
 `changed(id, callback)` (string, function) -> function()
 
-Callback called when the the value of the data represented by the `id` 
+Callback called when the the value of the data represented by the id 
 changes. Returns a function that will unsubscribe your callback on that id 
 when called. 
 
 #### <a name="7"></a>compsub
+`compsub(events, callback)` (string | array, function) -> function()
+
+Callback called when event conditions are met. Can take a string, or an array 
+where the first item is a string and subsequent items are functions. Keywords 
+`and` and `or` can be used to describe events. When an array is passed, any `$`
+passed in will be replaced by the functions in order. 
+
+With string
+````js
+myOcean.compsub('btn1_clicked and btn2_clicked', () => {
+    console.log('holy shit');
+});
+````
+
+With array
+````js
+myOcean.compsub(['btn1_clicked and $', coutnerGt5], () => {
+    console.log('woooooow');
+});
+````
+
+With array and keywords
+````js
+myOcean.compsub(['btn1_clicked and $ or btn2_clicked and $', coutnerGt5, coutnerLt5], () => {
+    console.log('tricky tricky...');
+});
+````
+
+See [examples](http://datamadic.github.io/ocean-js/examples/)
+
 #### <a name="8"></a>dispatch
+`dispatch(event, eventArgs)` (string, any) -> undefined
+
+Dispatch the event into your ocean instance. Spaces in event names are fine,
+but event string cannot contain ` and ` or ` or `.
+
+
 #### <a name="9"></a>getItem
+`getItem(id)` (string) -> any
+
+Returns the value represented by the given id.
+
+
 #### <a name="10"></a>subscribe
+`subscribe(event, callback)` (string, function) -> function()
+
+Callback called when event is raised. The callback will take any values passed 
+in for the event via the `dispatch` function. 
+
+
 #### <a name="11"></a>update
+`update(id, swapFunction)` ([string,] function) -> any
+
+Calls the swap function on the value represented by id. The swap function must
+return a value or the state stored by ocean will be undefined. You get a copy 
+of the result of applying the swap function returned to you. When an id is 
+omitted, it acts as an initialization function, setting the state and return a
+new id.
+
+Initializing a value
+````js
+var counter = myOcean.update(() => {
+    return 0;
+});
+````
+
+Updating an array where `users` is an id and `usersArr` is the value 
+handed to you by ocean that you update
+````js
+myOcean.update(users, (usersArr) => {
+    usersArr.push({
+        name: 'robby',
+        occupation: 'robber'
+    });
+
+    return usersArr;
+});
+````
 
 
 ---
@@ -160,7 +237,6 @@ The thought is this: if you have a conditional acting as the gatekeeper inside o
 
 
 
-[//]: # (* [The shared state is owned by everyone and no one](#1))
 [//]: # (* [All shared state MUST be serializable](#2))
 [//]: # (* [Events can be defined and dispatched from anywhere](#3))
 [//]: # (* [You should know all your shared state from the start](#4))
