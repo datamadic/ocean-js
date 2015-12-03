@@ -118,7 +118,11 @@ ocn.compsub(['btn1_clicked and $', coutnerGt5],()=>{
 
 
 ## <a name="5"></a>API
-A brief overview here...
+Basic overview...
+
+* All shared data must be serializable, no functions 
+* Any data added to the ocean will trigger events when acted on
+* You always only have either an id that represents a value or a copy of the value, never the remote value it self
 
 To create an ocean
 
@@ -227,7 +231,23 @@ emitter.on('the-event-i-care-about', function(res){
 });
 ````
 
-The thought is this: if you have a conditional acting as the gatekeeper inside of an asynchronous event, the conditional does not belong to you, it should be part of the subscription itself. Say, for example, you want to react to a button click only if the user is logged in. The user being logged in is part of the state that your component (and most likely others) care about. You care so much that if the user is not logged in, you are not going to take your action, so why even fire the callback?
+The thought is this: if you have a conditional acting as the gatekeeper inside of an asynchronous event, the conditional does not belong to you, it should be 
+part of the subscription itself as it represents app state. Say, for example, 
+you want to react to a button click only if the user is logged in. The user 
+being logged in is part of the state that your component (and most likely 
+others) care about. You care so much that if the user is not logged in, you 
+are not going to take your action, so why even fire the callback? Why have to 
+repeat that conditional logic each place you care about it? 
+
+Why must the data be serializable? Because I serialize it to store it! The 
+thought here is that if you are going to share state, you should be forced to
+represent that state in a context agnostic way, say, a string... 
+
+
+#####But why didn't you...
+This is a thought experiment. I tried to keep it as simple as possible without 
+losing the point. 
+
 
 
 
